@@ -1,0 +1,9 @@
+springdoc:
+  swagger-ui:
+    enabled: true
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
