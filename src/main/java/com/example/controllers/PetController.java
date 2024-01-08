@@ -1,142 +1,141 @@
 package com.example.controllers;
 
-import com.example.models.ApiResponseses;
-import com.example.models.Pet;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.web.multipart.MultipartFile;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import com.example.models.entity.PetEntity;
+import org.springframework.http.MediaType;
+import com.example.models.ApiResponseses;
+import com.example.service.PetService;
 
+import java.io.IOException;
 import java.util.List;
-
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/pet")
 @Tag(name = "pet", description = "Everything about your Pets")
 public class PetController {
 
+    private final PetService petService;
+
+    @Autowired
+    public PetController(PetService petService) {
+        this.petService = petService;
+    }
+
     @Operation(summary = "uploads an image")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(schema = @Schema(implementation = ApiResponseses.class))) })
+                    content = @Content(schema = @Schema(implementation = ApiResponseses.class)))})
 
-    @PostMapping(
-            value = "/{petId}/uploadImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponseses uploadImage(
+    @PostMapping(value = "/{petId}/uploadImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void uploadImage(
             @Parameter(description = "ID of pet to update", required = true)
-            @PathVariable("petId") Integer petId,
-            @Parameter(in = ParameterIn.QUERY, description = "Additional data to pass to server", required = false)
+            @PathVariable("petId") UUID petId,
+            @Parameter(description = "Additional data to pass to server", required = false)
             @RequestPart("additionalMetadata") String additionalMetadata,
-            @Parameter(in = ParameterIn.QUERY, description = "file to upload", required = false)
-            @RequestPart("file") MultipartFile file) {
-        return new ApiResponseses()
-                .setCode(200)
-                .setType("")
-                .setMessage("");
+            @Parameter(description = "file to upload", required = false)
+            @RequestPart("file") MultipartFile file) throws IOException {
+
+        petService.uploadImage(petId, additionalMetadata, file);
     }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
     @Operation(summary = "Add a new peet to the store")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "405", description = "Invalid input", content = @Content) })
+            @ApiResponse(responseCode = "405", description = "Invalid input", content = @Content)})
 
     @PostMapping()
-    public Pet addNewPet(
+    public PetEntity addNewPet(
             @Parameter(description = "Pet object that needs to be added to the store")
-            @RequestBody Pet body) {
+            @RequestBody PetEntity body) {
 
-        throw new UnsupportedOperationException();
+        return petService.addPet(body);
     }
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////
     @Operation(summary = "Update an existing pet")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "400", description = "Invalid ID supplied", content = @Content),
             @ApiResponse(responseCode = "404", description = "Pet not found", content = @Content),
-            @ApiResponse(responseCode = "405", description = "Validation exception", content = @Content) })
+            @ApiResponse(responseCode = "405", description = "Validation exception", content = @Content)})
 
     @PutMapping()
-    public Pet updatePet(
+    public PetEntity updatePet(
             @Parameter(description = "Pet object that needs to be added to the store")
-            @RequestBody Pet body) {
+            @RequestBody PetEntity body) {
 
-        throw new UnsupportedOperationException();
+        return petService.updatePet(body);
     }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
     @Operation(summary = "Finds Pets by status", description = "Multiple status values can be " +
             "provided with comma separated strings")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation",
-                    content = @Content(schema = @Schema(implementation = Pet.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid status value", content = @Content) })
+                    content = @Content(schema = @Schema(implementation = PetEntity.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid status value", content = @Content)})
 
     @GetMapping("/findByStatus")
-    public Pet findPet(
+    public List<PetEntity> findPetByStatus(
             @Parameter(description = "Status values that need to be considered for filter\n" +
                     "Available values : available, pending, sold")
             @RequestParam("status") List<String> status) {
 
-        throw new UnsupportedOperationException();
+        return petService.findPetsByStatus(status);
     }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
     @Operation(summary = "Find Pet by ID", description = "Returns a single pet")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation",
-                    content = @Content(schema = @Schema(implementation = Pet.class))),
+                    content = @Content(schema = @Schema(implementation = PetEntity.class))),
             @ApiResponse(responseCode = "400", description = "Invalid ID supplied", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Pet not found", content = @Content) })
+            @ApiResponse(responseCode = "404", description = "Pet not found", content = @Content)})
 
     @GetMapping("/{petId}")
-    public Pet findPetById(
+    public PetEntity findPetById(
             @Parameter(description = "ID of pet to return")
-            @PathVariable("petId") Integer petId) {
+            @PathVariable("petId") UUID petId) {
 
-        throw new UnsupportedOperationException();
+        return petService.findPetById(petId);
     }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
     @Operation(summary = "Updates a pet in the store with form data")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "405", description = "Invalid input", content = @Content) })
+            @ApiResponse(responseCode = "405", description = "Invalid input", content = @Content)})
 
     @PostMapping(
             value = "/{petId}")
-    public Pet uploadImage(
+    public PetEntity updatePetInStore(
             @Parameter(description = "ID of pet that needs to be updated")
-            @PathVariable("petId") Integer petId,
+            @PathVariable("petId") UUID petId,
             @Parameter(description = "Updated name of the pet")
             @RequestParam("name") String name,
             @Parameter(description = "Updated status of the pet")
             @RequestParam("status") String status) {
 
-        throw new UnsupportedOperationException();
+        return petService.updatePetInStore(petId, name, status);
     }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
     @Operation(summary = "Deletes a pet")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "400", description = "Invalid ID supplied", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Pet not found", content = @Content) })
+            @ApiResponse(responseCode = "404", description = "Pet not found", content = @Content)})
 
     @DeleteMapping(
             value = "/{petId}")
-    public Pet uploadImage(
-            @RequestHeader("api_key") String api_key,
+    public PetEntity deletePetInStore(
+            @RequestHeader("api_key") String api_key, // Кароч потом доделаю (юзера нет)
             @Parameter(description = "Pet id to delete")
-            @PathVariable("petId") Integer petId) {
+            @PathVariable("petId") UUID petId) {
 
-        throw new UnsupportedOperationException();
+        return petService.deletePetInStore(petId);
     }
 }

@@ -1,11 +1,11 @@
-package com.example.models;
+package com.example.models.dto;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class Tag {
+public class CategoryDto {
     private long id;
     private String name;
 }
