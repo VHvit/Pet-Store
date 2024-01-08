@@ -55,7 +55,7 @@ public class PetService {
 
     public void uploadImage(UUID petId, String additionalMetadata, MultipartFile file) throws IOException {
         PetEntity petEntity = petRepository.findById(petId)
-                .orElseThrow(() -> new IllegalStateException("Питомец не найден с идентификатором: " + petId));
+                .orElseThrow(() -> new IllegalStateException("Pet not found with ID: " + petId));
 
         String base64 = Base64.encodeBase64String(file.getInputStream().readAllBytes());
         petEntity.getPhotoUrls().add("base64://" + base64);
@@ -69,7 +69,7 @@ public class PetService {
 
         if (petEntity.getCategory() != null && petEntity.getCategory().getId() != null) {
             CategoryEntity existingCategory = categoryRepository.findById(petEntity.getCategory().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("Категория не найдена с идентификатором: "
+                    .orElseThrow(() -> new EntityNotFoundException("Category not found: "
                             + petEntity.getCategory().getId()));
             petEntity.setCategory(existingCategory);
         }
@@ -79,11 +79,11 @@ public class PetService {
 
     public PetEntity updatePet(PetEntity updatedPet) {
         if (updatedPet == null || updatedPet.getId() == null) {
-            throw new IllegalArgumentException("Неверные данные пета");
+            throw new IllegalArgumentException("Incorrect pet data");
         }
 
         PetEntity existingPet = petRepository.findById(updatedPet.getId())
-                .orElseThrow(() -> new NotFoundException("Пет не найден"));
+                .orElseThrow(() -> new NotFoundException("Pet not found"));
 
         existingPet.setName(updatedPet.getName());
         existingPet.setPhotoUrls(updatedPet.getPhotoUrls());
@@ -94,7 +94,7 @@ public class PetService {
 
     public List<PetEntity> findPetsByStatus(List<String> status) {
         if (status == null || status.isEmpty()) {
-            throw new IllegalArgumentException("Недопустимые значения статуса");
+            throw new IllegalArgumentException("Invalid status values");
         }
         return petRepository.findByStatusIn(status);
     }
@@ -102,12 +102,12 @@ public class PetService {
     public PetEntity findPetById(UUID petId) {
         Optional<PetEntity> optionalPet = petRepository.findById(petId);
 
-        return optionalPet.orElseThrow(() -> new NotFoundException("Пет не найден"));
+        return optionalPet.orElseThrow(() -> new NotFoundException("Pet not found"));
     }
 
     public PetEntity updatePetInStore(UUID petId, String name, String status) {
         Optional<PetEntity> optionalPet = petRepository.findById(petId);
-        PetEntity pet = optionalPet.orElseThrow(() -> new NotFoundException("Пет не найден"));
+        PetEntity pet = optionalPet.orElseThrow(() -> new NotFoundException("Pet not found"));
         pet.setName(name);
         pet.setStatus(status);
         return petRepository.save(pet);
@@ -115,7 +115,7 @@ public class PetService {
 
     public PetEntity deletePetInStore(UUID petId) {
         Optional<PetEntity> optionalPet = petRepository.findById(petId);
-        PetEntity pet = optionalPet.orElseThrow(() -> new NotFoundException("Пет не найден"));
+        PetEntity pet = optionalPet.orElseThrow(() -> new NotFoundException("Pet not found"));
         petRepository.delete(pet);
         return pet;
     }

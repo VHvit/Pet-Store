@@ -50,7 +50,7 @@ public class StoreService {
 
     public OrderEntity createOrder(OrderEntity order) {
         if (order.getPetId() != null && !petRepository.existsById(order.getPetId().getId())) {
-            throw new IllegalArgumentException("Питомец с ID " + order.getPetId().getId() + " не существует");
+            throw new IllegalArgumentException("A pet with ID " + order.getPetId().getId() + " does not exist");
         }
 
         if (order.getId() == null) {
@@ -66,12 +66,12 @@ public class StoreService {
 
     public OrderEntity findOrderById(UUID orderId) {
         return storeRepository.findById(orderId)
-                .orElseThrow(() -> new NotFoundException("Ордер не найден"));
+                .orElseThrow(() -> new NotFoundException("Order not found"));
     }
 
     public OrderEntity deleteOrderInStore(UUID orderId) {
         Optional<OrderEntity> optionalOrder = storeRepository.findById(orderId);
-        OrderEntity order = optionalOrder.orElseThrow(() -> new NotFoundException("Ордер не найден"));
+        OrderEntity order = optionalOrder.orElseThrow(() -> new NotFoundException("Order not found"));
         storeRepository.delete(order);
         return order;
     }

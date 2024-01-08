@@ -95,7 +95,7 @@ public class UserService {
 
     public UserEntity deleteUser(String username) {
         Optional<UserEntity> optionalUser = userRepository.findByUsername(username);
-        UserEntity user = optionalUser.orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        UserEntity user = optionalUser.orElseThrow(() -> new NotFoundException("User not found"));
         userRepository.delete(user);
         return user;
     }
@@ -103,20 +103,20 @@ public class UserService {
     public UserEntity userLogin(String username, String password) {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Пользователь не найден"));
+                        HttpStatus.NOT_FOUND, "User not found"));
 
         if (password.equals(user.getPassword())) {
             return user;
         } else {
             throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED, "Неверный пароль");
+                    HttpStatus.UNAUTHORIZED, "Invalid password");
         }
     }
 
     public UserEntity createUser(UserEntity user) {
         UserEntity existingUser = userRepository.findByUsername(user.getUsername()).orElse(null);
         if (existingUser != null) {
-            throw new IllegalArgumentException("Пользователь с таким именем пользователя уже существует: " + user.getUsername());
+            throw new IllegalArgumentException("A user with that username already exists: " + user.getUsername());
         }
 
         return userRepository.save(user);
