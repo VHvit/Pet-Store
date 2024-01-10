@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-author
+      author: Dmitriy
+      changes:
+        - createTable:
+            tableName: li_orders
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  autoIncrement: false
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: complete
+                  type: bool
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: int4
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(256)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: pet_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: li_orders
+            baseColumnNames: pet_id
+            referencedTableName: li_pets
+            referencedColumnNames: id
+            constraintName: fk_orders_pets
+

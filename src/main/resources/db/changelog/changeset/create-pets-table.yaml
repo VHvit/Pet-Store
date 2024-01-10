@@ -1,0 +1,54 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-author
+      author: Dmitriy
+      changes:
+        - createTable:
+            tableName: li_pets
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  autoIncrement: false
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: photo_urls
+                  type: jsonb
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: category_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tags_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: li_pets
+            baseColumnNames: category_id
+            referencedTableName: li_category
+            referencedColumnNames: id
+            constraintName: fk_pets_category
+
+        - addForeignKeyConstraint:
+            baseTableName: li_pets
+            baseColumnNames: tags_id
+            referencedTableName: li_tags
+            referencedColumnNames: id
+            constraintName: fk_pets_tags

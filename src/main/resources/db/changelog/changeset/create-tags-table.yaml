@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-author
+      author: Dmitriy
+      changes:
+        - createTable:
+            tableName: li_tags
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  autoIncrement: false
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false

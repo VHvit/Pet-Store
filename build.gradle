@@ -25,6 +25,7 @@ dependencies {
 	implementation 'org.postgresql:postgresql'
 	implementation 'com.vladmihalcea:hibernate-types-52:2.9.7'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	implementation 'org.liquibase:liquibase-core:4.10.0' // Замените 4.10.0 на актуальную версию
 
 	//implementation 'javax.servlet:javax.servlet-api:4.0.1'
 	//implementation 'org.springframework.boot:spring-boot-starter-security'
