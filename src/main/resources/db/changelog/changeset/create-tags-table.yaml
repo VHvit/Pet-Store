@@ -4,7 +4,7 @@ databaseChangeLog:
       author: Dmitriy
       changes:
         - createTable:
-            tableName: li_tags
+            tableName: tags
             columns:
               - column:
                   name: id
@@ -12,9 +12,9 @@ databaseChangeLog:
                   autoIncrement: false
                   constraints:
                     primaryKey: true
-                    nullable: false
+                    nullable: true
               - column:
                   name: name
                   type: varchar(255)
                   constraints:
-                    nullable: false
+                    nullable: true

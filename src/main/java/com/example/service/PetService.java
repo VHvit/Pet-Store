@@ -26,6 +26,7 @@ public class PetService {
     private final PetRepository petRepository;
     private final CategoryRepository categoryRepository;
 
+
     public PetDto save(PetDto petDto) {
         PetEntity petEntity = map(petDto);
         return map(
@@ -54,13 +55,19 @@ public class PetService {
     }
 
     public void uploadImage(UUID petId, String additionalMetadata, MultipartFile file) throws IOException {
-        PetEntity petEntity = petRepository.findById(petId)
-                .orElseThrow(() -> new IllegalStateException("Pet not found with ID: " + petId));
+        try {
+            PetEntity petEntity = petRepository.findById(petId)
+                    .orElseThrow(() -> new IllegalStateException("Pet not found with ID: " + petId));
 
-        String base64 = Base64.encodeBase64String(file.getInputStream().readAllBytes());
-        petEntity.getPhotoUrls().add("base64://" + base64);
-        petRepository.save(petEntity);
+            String base64 = Base64.encodeBase64String(file.getInputStream().readAllBytes());
+            petEntity.getPhotoUrls().add("base64://" + base64);
+            petRepository.save(petEntity);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
+
 
     public PetEntity addPet(PetEntity petEntity) {
         if (petEntity.getId() == null) {

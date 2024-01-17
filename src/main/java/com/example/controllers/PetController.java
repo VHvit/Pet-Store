@@ -85,7 +85,7 @@ public class PetController {
 
     @ExceptionHandler(Exception.class) //405 add new pet
     public ResponseEntity<ApiErrorResponse> handleAddException(Exception ex) {
-        return petHandleException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return petHandleException(HttpStatus.METHOD_NOT_ALLOWED, ex.getMessage());
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ public class PetController {
         } catch (NotFoundException ex) {
             return handleNotFoundException(ex);
         } catch (ValidationException ex) {
-            return handleFoundException(ex);
+            return handleBadRequestException(ex);
         } catch (Exception ex) {
             return handleValidationException(ex);
         }
@@ -112,12 +112,12 @@ public class PetController {
 
     @ExceptionHandler(NotFoundException.class) //400 update pet
     public ResponseEntity<ApiErrorResponse> handleNotFoundException(NotFoundException ex) {
-        return petHandleException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return petHandleException(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(ValidationException.class) // 404 update pet
-    public ResponseEntity<ApiErrorResponse> handleFoundException(ValidationException ex) {
-        return petHandleException(HttpStatus.NOT_FOUND, ex.getMessage());
+    public ResponseEntity<ApiErrorResponse> handleBadRequestException(ValidationException ex) {
+        return petHandleException(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class) //405 update pet
@@ -215,7 +215,7 @@ public class PetController {
 
     @ExceptionHandler(MethodNotAllowedException.class)
     public ResponseEntity<ApiErrorResponse> handleUpdatePetException(Exception ex) {
-        return petHandleException(HttpStatus.METHOD_NOT_ALLOWED, "Invalid input: " + ex.getMessage());
+        return petHandleException(HttpStatus.METHOD_NOT_ALLOWED, ex.getMessage());
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

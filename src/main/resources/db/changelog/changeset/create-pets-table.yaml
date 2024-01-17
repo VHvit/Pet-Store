@@ -4,7 +4,7 @@ databaseChangeLog:
       author: Dmitriy
       changes:
         - createTable:
-            tableName: li_pets
+            tableName: pets
             columns:
               - column:
                   name: id
@@ -17,38 +17,38 @@ databaseChangeLog:
                   name: name
                   type: varchar(255)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: photo_urls
                   type: jsonb
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: status
                   type: varchar(255)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: category_id
                   type: uuid
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: tags_id
                   type: uuid
                   constraints:
-                    nullable: false
+                    nullable: true
 
         - addForeignKeyConstraint:
-            baseTableName: li_pets
+            baseTableName: pets
             baseColumnNames: category_id
-            referencedTableName: li_category
+            referencedTableName: category
             referencedColumnNames: id
             constraintName: fk_pets_category
 
         - addForeignKeyConstraint:
-            baseTableName: li_pets
+            baseTableName: pets
             baseColumnNames: tags_id
-            referencedTableName: li_tags
+            referencedTableName: tags
             referencedColumnNames: id
             constraintName: fk_pets_tags

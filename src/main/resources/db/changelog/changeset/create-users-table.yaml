@@ -4,7 +4,7 @@ databaseChangeLog:
       author: Dmitriy
       changes:
         - createTable:
-            tableName: li_users
+            tableName: users
             columns:
               - column:
                   name: id
@@ -17,34 +17,34 @@ databaseChangeLog:
                   name: email
                   type: varchar(255)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: first_name
                   type: varchar(255)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: last_name
                   type: varchar(255)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: password
                   type: varchar(255)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: phone
                   type: varchar(255)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: user_status
                   type: int
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: username
                   type: varchar(255)
                   constraints:
-                    nullable: false
+                    nullable: true

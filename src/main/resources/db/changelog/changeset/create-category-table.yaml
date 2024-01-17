@@ -4,7 +4,7 @@ databaseChangeLog:
       author: Dmitriy
       changes:
         - createTable:
-            tableName: li_category
+            tableName: category
             columns:
               - column:
                   name: id
@@ -17,4 +17,4 @@ databaseChangeLog:
                   name: name
                   type: varchar(255)
                   constraints:
-                    nullable: false
+                    nullable: true
