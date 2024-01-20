@@ -1,7 +1,7 @@
 package com.example.service;
 
 import org.springframework.stereotype.Service;
-import com.example.repository.StoreRepository;
+import com.example.repository.OrderRepository;
 import com.example.models.entity.OrderEntity;
 import com.example.repository.PetRepository;
 import com.example.models.dto.OrderDto;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class StoreService {
 
-    private final StoreRepository storeRepository;
+    private final OrderRepository storeRepository;
     private final PetRepository petRepository;
 
     public OrderDto save(OrderDto storeDto) {

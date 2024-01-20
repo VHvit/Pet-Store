@@ -1,11 +1,11 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/changeset/create-category-table.yaml
+      file: db/changelog/changeset/01_create-tags-table.yaml
   - include:
-      file: db/changelog/changeset/create-tags-table.yaml
+      file: db/changelog/changeset/02_create-category-table.yaml
   - include:
-      file: db/changelog/changeset/create-users-table.yaml
+      file: db/changelog/changeset/03_create-pets-table.yaml
   - include:
-      file: db/changelog/changeset/create-pets-table.yaml
+      file: db/changelog/changeset/04_create-orders-table.yaml
   - include:
-      file: db/changelog/changeset/create-orders-table.yaml
+      file: db/changelog/changeset/05_create-users-table.yaml

@@ -13,7 +13,6 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 public class ApiErrorResponse {
     private Integer code;
-    //    private String type;
     private String message;
 }
 

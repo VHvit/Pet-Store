@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class PetDto {
     private UUID id;
     private CategoryEntity category;
@@ -21,5 +23,6 @@ public class PetDto {
     private List<String> photoUrls;
     private TagEntity tags;
     private String status;
+
 
 }

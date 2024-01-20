@@ -22,17 +22,17 @@ ext {
 dependencies {
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.3'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.postgresql:postgresql'
 	implementation 'com.vladmihalcea:hibernate-types-52:2.9.7'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
-	implementation 'org.liquibase:liquibase-core:4.10.0' // Замените 4.10.0 на актуальную версию
-
-	//implementation 'javax.servlet:javax.servlet-api:4.0.1'
-	//implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.liquibase:liquibase-core:4.10.0'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	//testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation "org.testcontainers:junit-jupiter:1.17.6"
+	testImplementation 'org.testcontainers:postgresql:1.15.3'
+	testImplementation 'org.springframework.security:spring-security-test'
 }
 
 dependencyManagement {
@@ -42,7 +42,7 @@ dependencyManagement {
 }
 
 dependencies {
-	compileOnly 'org.projectlombok:lombok:1.18.22' // Убедитесь, что это актуальная версия
+	compileOnly 'org.projectlombok:lombok:1.18.22'
 	annotationProcessor 'org.projectlombok:lombok:1.18.22'
 }
 
