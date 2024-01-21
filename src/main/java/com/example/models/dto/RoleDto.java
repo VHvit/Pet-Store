@@ -7,20 +7,13 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.util.UUID;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class UserDto {
+
+public class RoleDto {
     private UUID id;
-    private String username;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String password;
-    private String phone;
-    private Integer userStatus;
-    private RoleDto roleDto;
+    private String name;
 }
