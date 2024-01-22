@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -43,6 +45,7 @@ public class UserEntity {
     private Integer userStatus;
 
     @ManyToOne
-    @JoinColumn(name = "role_id", nullable = true)
+    @JoinColumn(name = "role_id", nullable = false)
     private RoleEntity role;
+
 }

@@ -8,6 +8,9 @@ server:
       charset: UTF-8
       force: true
 
+jwt:
+  secret: hvit
+  lifetime: PT30M
 spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml

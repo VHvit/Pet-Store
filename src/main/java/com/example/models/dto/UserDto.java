@@ -22,5 +22,5 @@ public class UserDto {
     private String password;
     private String phone;
     private Integer userStatus;
-    private RoleDto roleDto;
+    private RoleDto roles;
 }

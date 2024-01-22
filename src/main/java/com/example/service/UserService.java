@@ -1,31 +1,83 @@
 package com.example.service;
 
 import com.example.models.dto.UserDto;
-import com.example.models.entity.PetEntity;
+import com.example.models.entity.RoleEntity;
 import com.example.models.entity.UserEntity;
+import com.example.repository.RoleRepository;
 import com.example.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.webjars.NotFoundException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import javax.transaction.Transactional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
+    @Autowired
     private final UserRepository userRepository;
+
+    @Autowired
+    private final RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public UserDto save(UserDto userDto) {
         UserEntity userEntity = map(userDto);
         return map(
                 userRepository.save(userEntity)
         );
+    }
+
+    public Optional<UserEntity> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public Optional<UserEntity> findByLoginAndPassword(String username, String password) {
+        Optional<UserEntity> userEntity = findByUsername(username);
+        if (userEntity.isPresent()) {
+            if (passwordEncoder.matches(password, userEntity.get().getPassword())) {
+                return userEntity;
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserEntity userEntity = findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(
+                String.format("User with username '%s' not found", username)
+        ));
+        return new org.springframework.security.core.userdetails.User(
+                userEntity.getUsername(),
+                userEntity.getPassword(),
+                userEntity.getRole() != null ?
+                        Collections.singletonList(new SimpleGrantedAuthority(userEntity.getRole().getName())) :
+                        Collections.emptyList()
+        );
+    }
+
+    public void createNewUser(UserEntity userEntity) {
+        RoleEntity role = roleRepository.findByName("guest");
+
+        if (role != null) {
+            userEntity.setRole(role);
+            userRepository.save(userEntity);
+        } else {
+            throw new RuntimeException("Role 'guest' not found");
+        }
     }
 
     public UserEntity map(UserDto userDto) {

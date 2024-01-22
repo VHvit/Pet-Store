@@ -1,5 +1,7 @@
 package com.example.controllers;
 
+import com.example.jwt.JwtProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,16 +23,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/user")
-
+@RequiredArgsConstructor
 @Tag(name = "user", description = "Operations about user")
 public class UserController {
 
     private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private final JwtProvider jwtProvider;
 
     public ResponseEntity<ApiErrorResponse> userHandleException(HttpStatus status, String message) {
 
@@ -186,8 +184,8 @@ public class UserController {
             @Parameter(description = "The password for login in clear text")
             @RequestParam("password") String password) {
         try {
-            UserEntity loggedInUser = userService.userLogin(username, password);
-            return ResponseEntity.status(HttpStatus.OK).body(loggedInUser);
+            UserEntity userEntity = userService.userLogin(username, password);
+            return ResponseEntity.status(HttpStatus.OK).body(userEntity);
         } catch (ValidationException ex) {
             return handleLogsUserValidationException(ex);
         }
@@ -196,15 +194,6 @@ public class UserController {
     @ExceptionHandler(ValidationException.class) // 400 user login
     public ResponseEntity<ApiErrorResponse> handleLogsUserValidationException(ValidationException ex) {
         return userHandleException(HttpStatus.BAD_REQUEST, "Invalid username supplied");
-    }
-
-    private ResponseEntity<ApiErrorResponse> handleException(HttpStatus status, String defaultErrorMessage, String customMessage) {
-        String message = customMessage != null ? customMessage : defaultErrorMessage;
-
-        ApiErrorResponse apiErrorResponse = new ApiErrorResponse()
-                .setCode(status.value())
-                .setMessage(message);
-        return ResponseEntity.status(status).body(apiErrorResponse);
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

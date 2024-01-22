@@ -6,10 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Data
@@ -23,6 +20,7 @@ import java.util.UUID;
 public class RoleEntity {
 
     @Id
+    @GeneratedValue
     @Builder.Default
     private UUID id = UUID.randomUUID();
 
