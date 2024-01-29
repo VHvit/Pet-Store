@@ -44,15 +44,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username);
     }
 
-    public Optional<UserEntity> findByLoginAndPassword(String username, String password) {
-        Optional<UserEntity> userEntity = findByUsername(username);
-        if (userEntity.isPresent()) {
-            if (passwordEncoder.matches(password, userEntity.get().getPassword())) {
-                return userEntity;
-            }
-        }
-        return Optional.empty();
-    }
 
     @Override
     @Transactional
@@ -67,17 +58,6 @@ public class UserService implements UserDetailsService {
                         Collections.singletonList(new SimpleGrantedAuthority(userEntity.getRole().getName())) :
                         Collections.emptyList()
         );
-    }
-
-    public void createNewUser(UserEntity userEntity) {
-        RoleEntity role = roleRepository.findByName("guest");
-
-        if (role != null) {
-            userEntity.setRole(role);
-            userRepository.save(userEntity);
-        } else {
-            throw new RuntimeException("Role 'guest' not found");
-        }
     }
 
     public UserEntity map(UserDto userDto) {

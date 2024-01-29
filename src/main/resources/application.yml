@@ -10,7 +10,7 @@ server:
 
 jwt:
   secret: hvit
-  lifetime: PT30M
+  lifetime: 5m
 spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
@@ -27,6 +27,7 @@ spring:
       hibernate.default_schema: pet_store
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
 classpath:/db/changelog/db:
   changelog-master:
     yaml:

@@ -1,5 +1,6 @@
 package com.example.config;
 
+import com.example.jwt.JwtFilter;
 import com.example.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -24,22 +26,27 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
     private final UserService userService;
+    private final JwtFilter jwtFilter;
+
+
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
                 .csrf().disable()
                 .cors().disable()
                 .authorizeRequests()
-                .antMatchers("/secured").authenticated()
-                .antMatchers("/admin").hasRole("ADMIN")
+                .antMatchers("/test/secured").authenticated()
+                .antMatchers("/test/info").authenticated()
+                .antMatchers("/test/admin").hasRole("ADMIN")
                 .anyRequest().permitAll()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-        return httpSecurity.build();
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                .and().addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
     }
 
     @Bean

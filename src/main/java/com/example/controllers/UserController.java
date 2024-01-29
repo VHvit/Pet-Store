@@ -1,8 +1,7 @@
 package com.example.controllers;
 
-import com.example.jwt.JwtProvider;
+import com.example.jwt.JwtUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,7 +27,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final JwtProvider jwtProvider;
+    private final JwtUtils jwtProvider;
 
     public ResponseEntity<ApiErrorResponse> userHandleException(HttpStatus status, String message) {
 
