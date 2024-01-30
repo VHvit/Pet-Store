@@ -10,7 +10,7 @@ server:
 
 jwt:
   secret: hvit
-  lifetime: 5m
+  lifetime: 35m
 spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml

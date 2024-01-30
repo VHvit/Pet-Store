@@ -13,12 +13,15 @@ import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import com.example.models.entity.OrderEntity;
+
+import javax.annotation.security.RolesAllowed;
 import javax.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import com.example.models.ApiErrorResponse;
 import com.example.service.StoreService;
 import org.webjars.NotFoundException;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -51,6 +54,7 @@ public class StoreController {
                     content = @Content)})
 
     @PostMapping("/order")
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public ResponseEntity<?> orderCreate(
             @Parameter(description = "Order object")
             @RequestBody OrderEntity body) {
@@ -81,11 +85,12 @@ public class StoreController {
                     content = @Content)})
 
     @GetMapping("/order/{orderId}")
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public ResponseEntity<?> findOrderById(
             @Parameter(description = "ID of pet that needs to be fetched")
             @PathVariable("orderId") UUID orderId) {
         try {
-            OrderEntity order = storeService.findOrderById(orderId);
+            Optional<OrderEntity> order = storeService.findOrderById(orderId);
             return ResponseEntity.status(HttpStatus.OK).body(order);
         } catch (ValidationException ex) {
             return handleOrderValidationException(ex);
@@ -114,12 +119,14 @@ public class StoreController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Order not found",
                     content = @Content)})
+
     @DeleteMapping("/order/{orderId}")
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public ResponseEntity<?> deleteOrderById(
             @Parameter(description = "ID of the order that needs to be deleted")
             @PathVariable("orderId") UUID orderId) {
         try {
-            OrderEntity deletedOrder = storeService.deleteOrderInStore(orderId);
+            Optional<OrderEntity> deletedOrder = storeService.deleteOrderInStore(orderId);
             return ResponseEntity.status(HttpStatus.OK).body(deletedOrder);
         } catch (ValidationException ex) {
             return handleDeleteValidationException(ex);
@@ -148,9 +155,9 @@ public class StoreController {
                     content = @Content)})
 
     @GetMapping("/inventory")
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public OrderEntity getOrder() {
         throw new UnsupportedOperationException();
     }
-
 
 }

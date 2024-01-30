@@ -12,7 +12,6 @@ import com.example.repository.PetRepository;
 import com.example.models.entity.PetEntity;
 import lombok.RequiredArgsConstructor;
 import com.example.models.dto.PetDto;
-import org.webjars.NotFoundException;
 
 import java.io.IOException;
 import java.util.List;
@@ -55,16 +54,17 @@ public class PetService {
     }
 
     public void uploadImage(UUID petId, String additionalMetadata, MultipartFile file) throws IOException {
-        try {
-            PetEntity petEntity = petRepository.findById(petId)
-                    .orElseThrow(() -> new IllegalStateException("Pet not found with ID: " + petId));
+        Optional<PetEntity> optionalPetEntity = petRepository.findById(petId);
 
-            String base64 = Base64.encodeBase64String(file.getInputStream().readAllBytes());
+        if (optionalPetEntity.isPresent()) {
+            PetEntity petEntity = optionalPetEntity.get();
+
+            String base64 = Base64.encodeBase64String(file.getBytes());
             petEntity.getPhotoUrls().add("base64://" + base64);
+
             petRepository.save(petEntity);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+        } else {
+            throw new EntityNotFoundException("Pet with id " + petId + " not found");
         }
     }
 
@@ -75,29 +75,39 @@ public class PetService {
         }
 
         if (petEntity.getCategory() != null && petEntity.getCategory().getId() != null) {
-            CategoryEntity existingCategory = categoryRepository.findById(petEntity.getCategory().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("Category not found: "
-                            + petEntity.getCategory().getId()));
-            petEntity.setCategory(existingCategory);
+            Optional<CategoryEntity> existingCategory = categoryRepository.findById(petEntity.getCategory().getId());
+
+            if (existingCategory.isPresent()) {
+                petEntity.setCategory(existingCategory.get());
+            } else {
+                throw new EntityNotFoundException("Category with id " + petEntity.getCategory().getId() + " not found");
+            }
         }
 
         return petRepository.save(petEntity);
     }
+
 
     public PetEntity updatePet(PetEntity updatedPet) {
         if (updatedPet == null || updatedPet.getId() == null) {
             throw new IllegalArgumentException("Incorrect pet data");
         }
 
-        PetEntity existingPet = petRepository.findById(updatedPet.getId())
-                .orElseThrow(() -> new NotFoundException("Pet not found"));
+        Optional<PetEntity> existingPetOptional = petRepository.findById(updatedPet.getId());
 
-        existingPet.setName(updatedPet.getName());
-        existingPet.setPhotoUrls(updatedPet.getPhotoUrls());
-        existingPet.setStatus(updatedPet.getStatus());
+        if (existingPetOptional.isPresent()) {
+            PetEntity existingPet = existingPetOptional.get();
 
-        return petRepository.save(existingPet);
+            existingPet.setName(updatedPet.getName());
+            existingPet.setPhotoUrls(updatedPet.getPhotoUrls());
+            existingPet.setStatus(updatedPet.getStatus());
+
+            return petRepository.save(existingPet);
+        } else {
+            throw new EntityNotFoundException("Pet with id " + updatedPet.getId() + " not found");
+        }
     }
+
 
     public List<PetEntity> findPetsByStatus(List<String> status) {
         if (status == null || status.isEmpty()) {
@@ -106,25 +116,41 @@ public class PetService {
         return petRepository.findByStatusIn(status);
     }
 
-    public PetEntity findPetById(UUID petId) {
+    public Optional<PetEntity> findPetById(UUID petId) {
         Optional<PetEntity> optionalPet = petRepository.findById(petId);
 
-        return optionalPet.orElseThrow(() -> new NotFoundException("Pet not found"));
+        return optionalPet;
     }
 
     public PetEntity updatePetInStore(UUID petId, String name, String status) {
         Optional<PetEntity> optionalPet = petRepository.findById(petId);
-        PetEntity pet = optionalPet.orElseThrow(() -> new NotFoundException("Pet not found"));
-        pet.setName(name);
-        pet.setStatus(status);
-        return petRepository.save(pet);
+
+        if (optionalPet.isPresent()) {
+            PetEntity pet = optionalPet.get();
+
+            pet.setName(name);
+            pet.setStatus(status);
+
+            return petRepository.save(pet);
+        } else {
+            throw new EntityNotFoundException("Pet with id " + petId + " not found");
+        }
     }
 
-    public PetEntity deletePetInStore(UUID petId) {
+
+    public Optional<PetEntity> deletePetInStore(UUID petId) {
         Optional<PetEntity> optionalPet = petRepository.findById(petId);
-        PetEntity pet = optionalPet.orElseThrow(() -> new NotFoundException("Pet not found"));
-        petRepository.delete(pet);
-        return pet;
+
+        if (optionalPet.isPresent()) {
+            PetEntity pet = optionalPet.get();
+
+            petRepository.delete(pet);
+
+            return Optional.of(pet);
+        } else {
+            return Optional.empty();
+        }
     }
+
 
 }

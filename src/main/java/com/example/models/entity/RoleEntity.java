@@ -1,9 +1,6 @@
 package com.example.models.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
@@ -13,6 +10,7 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name="roles")
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)

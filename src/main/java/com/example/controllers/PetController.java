@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import javax.annotation.security.RolesAllowed;
 import javax.validation.ValidationException;
 import com.example.models.ApiErrorResponse;
 import com.example.models.entity.PetEntity;
@@ -24,6 +26,7 @@ import org.webjars.NotFoundException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -54,6 +57,7 @@ public class PetController {
                     content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))})
 
     @PostMapping(value = "/{petId}/uploadImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public void uploadImage(
             @Parameter(description = "ID of pet to update", required = true)
             @PathVariable("petId") UUID petId,
@@ -72,6 +76,7 @@ public class PetController {
             @ApiResponse(responseCode = "405", description = "Invalid input", content = @Content)})
 
     @PostMapping()
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public ResponseEntity<?> addNewPet(
             @Parameter(description = "Pet object that needs to be added to the store")
             @RequestBody PetEntity body) {
@@ -97,6 +102,7 @@ public class PetController {
             @ApiResponse(responseCode = "405", description = "Validation exception", content = @Content)})
 
     @PutMapping()
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public ResponseEntity<?> updatePet(@RequestBody PetEntity body) {
         try {
             PetEntity updatedPet = petService.updatePet(body);
@@ -135,6 +141,7 @@ public class PetController {
             @ApiResponse(responseCode = "400", description = "Invalid status value", content = @Content)})
 
     @GetMapping("/findByStatus")
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public ResponseEntity<?> findPetByStatus(
             @Parameter(description = "Status values that need to be considered for filter\n" +
                     "Available values : available, pending, sold")
@@ -168,11 +175,12 @@ public class PetController {
             @ApiResponse(responseCode = "404", description = "Pet not found", content = @Content)})
 
     @GetMapping("/{petId}")
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public ResponseEntity<?> findPetById(
             @Parameter(description = "ID of pet to return")
             @PathVariable("petId") UUID petId) {
         try {
-            PetEntity pet = petService.findPetById(petId);
+            Optional<PetEntity> pet = petService.findPetById(petId);
             return ResponseEntity.status(HttpStatus.OK).body(pet);
         } catch (NotFoundException ex) {
             return handleFException(ex);
@@ -181,12 +189,12 @@ public class PetController {
         }
     }
 
-    @ExceptionHandler(ValidationException.class) // 404 update pet
+    @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ApiErrorResponse> handleFException(NotFoundException ex) {
         return petHandleException(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    @ExceptionHandler(NotFoundException.class) //400 update pet
+    @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleNoFoundException(ValidationException ex) {
         return petHandleException(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
@@ -198,6 +206,7 @@ public class PetController {
             @ApiResponse(responseCode = "405", description = "Invalid input", content = @Content)})
 
     @PostMapping(value = "/{petId}")
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public ResponseEntity<?> updatePetInStore(
             @Parameter(description = "ID of pet that needs to be updated")
             @PathVariable("petId") UUID petId,
@@ -226,12 +235,13 @@ public class PetController {
             @ApiResponse(responseCode = "404", description = "Pet not found", content = @Content)})
 
     @DeleteMapping(value = "/{petId}")
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public ResponseEntity<?> deletePetInStore(
-            @RequestHeader("api_key") String api_key, // Кароч потом доделаю (юзера нет)
+            @RequestHeader("api_key") String api_key ,
             @Parameter(description = "Pet id to delete")
             @PathVariable("petId") UUID petId) {
         try {
-            PetEntity deletedPet = petService.deletePetInStore(petId);
+            Optional<PetEntity> deletedPet = petService.deletePetInStore(petId);
             return ResponseEntity.status(HttpStatus.OK).body(deletedPet);
         } catch (NotFoundException ex) {
             return handleDeletePetNotFoundException(ex);

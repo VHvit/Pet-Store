@@ -3,19 +3,15 @@ package com.example.service;
 import com.example.models.dto.UserDto;
 import com.example.models.entity.RoleEntity;
 import com.example.models.entity.UserEntity;
-import com.example.repository.RoleRepository;
 import com.example.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-import org.webjars.NotFoundException;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -24,21 +20,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-    @Autowired
     private final UserRepository userRepository;
-
-    @Autowired
-    private final RoleRepository roleRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public UserDto save(UserDto userDto) {
-        UserEntity userEntity = map(userDto);
-        return map(
-                userRepository.save(userEntity)
-        );
-    }
+    private final PasswordEncoder passwordEncoder;
 
     public Optional<UserEntity> findByUsername(String username) {
         return userRepository.findByUsername(username);
@@ -48,15 +31,28 @@ public class UserService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity userEntity = findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(
-                String.format("User with username '%s' not found", username)
-        ));
-        return new org.springframework.security.core.userdetails.User(
-                userEntity.getUsername(),
-                userEntity.getPassword(),
-                userEntity.getRole() != null ?
-                        Collections.singletonList(new SimpleGrantedAuthority(userEntity.getRole().getName())) :
-                        Collections.emptyList()
+        Optional<UserEntity> userEntityOptional = findByUsername(username);
+
+        if (userEntityOptional.isPresent()) {
+            UserEntity userEntity = userEntityOptional.get();
+
+            return new org.springframework.security.core.userdetails.User(
+                    userEntity.getUsername(),
+                    userEntity.getPassword(),
+                    userEntity.getRole() != null ?
+                            Collections.singletonList(new SimpleGrantedAuthority(userEntity.getRole().getName())) :
+                            Collections.emptyList()
+            );
+        } else {
+            throw new UsernameNotFoundException(String.format("User with username '%s' not found", username));
+        }
+    }
+
+
+    public UserDto save(UserDto userDto) {
+        UserEntity userEntity = map(userDto);
+        return map(
+                userRepository.save(userEntity)
         );
     }
 
@@ -104,9 +100,8 @@ public class UserService implements UserDetailsService {
         return userRepository.saveAll(userEntities);
     }
 
-    public UserEntity getUserByUsername(String username) {
-        Optional<UserEntity> userOptional = userRepository.findByUsername(username);
-        return userOptional.orElseThrow(() -> new IllegalArgumentException("User not found"));
+    public Optional<UserEntity> getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     public UserEntity updateUser(String username, UserEntity updatedUser) {
@@ -125,34 +120,50 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public UserEntity deleteUser(String username) {
+    public Optional<UserEntity> deleteUser(String username) {
         Optional<UserEntity> optionalUser = userRepository.findByUsername(username);
-        UserEntity user = optionalUser.orElseThrow(() -> new NotFoundException("User not found"));
-        userRepository.delete(user);
-        return user;
+
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
+
+            userRepository.delete(user);
+
+            return Optional.of(user);
+        } else {
+            return Optional.empty();
+        }
     }
 
-    public UserEntity userLogin(String username, String password) {
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "User not found"));
+    public Optional<UserEntity> userLogin(String username, String password) {
+        Optional<UserEntity> userOptional = userRepository.findByUsername(username);
 
-        if (password.equals(user.getPassword())) {
-            return user;
+        if (userOptional.isPresent()) {
+            UserEntity user = userOptional.get();
+
+            if (password.equals(user.getPassword())) {
+                return Optional.of(user);
+            } else {
+                return Optional.empty();
+            }
         } else {
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED, "Invalid password");
+            return Optional.empty();
         }
     }
 
     public UserEntity createUser(UserEntity user) {
-        UserEntity existingUser = userRepository.findByUsername(user.getUsername()).orElse(null);
-        if (existingUser != null) {
-            throw new IllegalArgumentException("A user with that username already exists: " + user.getUsername());
+        Optional<UserEntity> existingUser = userRepository.findByUsername(user.getUsername());
+
+        if (existingUser.isPresent()) {
+            return null;
         }
+
+        String hashedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashedPassword);
+
+        RoleEntity role = new RoleEntity();
+        role.setId(UUID.fromString("7d2437ba-5a48-4997-9473-229c68bff871"));
+        user.setRole(role);
 
         return userRepository.save(user);
     }
-
-
 }

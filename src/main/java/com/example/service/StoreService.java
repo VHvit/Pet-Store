@@ -6,7 +6,6 @@ import com.example.models.entity.OrderEntity;
 import com.example.repository.PetRepository;
 import com.example.models.dto.OrderDto;
 import lombok.RequiredArgsConstructor;
-import org.webjars.NotFoundException;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -64,16 +63,23 @@ public class StoreService {
         return storeRepository.save(order);
     }
 
-    public OrderEntity findOrderById(UUID orderId) {
-        return storeRepository.findById(orderId)
-                .orElseThrow(() -> new NotFoundException("Order not found"));
+    public Optional<OrderEntity> findOrderById(UUID orderId) {
+        return storeRepository.findById(orderId);
     }
 
-    public OrderEntity deleteOrderInStore(UUID orderId) {
+    public Optional<OrderEntity> deleteOrderInStore(UUID orderId) {
         Optional<OrderEntity> optionalOrder = storeRepository.findById(orderId);
-        OrderEntity order = optionalOrder.orElseThrow(() -> new NotFoundException("Order not found"));
-        storeRepository.delete(order);
-        return order;
+
+        if (optionalOrder.isPresent()) {
+            OrderEntity order = optionalOrder.get();
+
+            storeRepository.delete(order);
+
+            return Optional.of(order);
+        } else {
+            return Optional.empty();
+        }
     }
+
 
 }

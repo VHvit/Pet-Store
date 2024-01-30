@@ -23,9 +23,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableGlobalMethodSecurity(securedEnabled = true)
+@EnableGlobalMethodSecurity(
+        securedEnabled = true,
+        prePostEnabled = true,
+        jsr250Enabled = true)
 public class SecurityConfig {
-    private final UserService userService;
     private final JwtFilter jwtFilter;
 
 
@@ -36,9 +38,11 @@ public class SecurityConfig {
                 .csrf().disable()
                 .cors().disable()
                 .authorizeRequests()
-                .antMatchers("/test/secured").authenticated()
-                .antMatchers("/test/info").authenticated()
-                .antMatchers("/test/admin").hasRole("ADMIN")
+//                .antMatchers("/pet/**").hasAnyRole("ADMIN", "MANAGER")
+//                .antMatchers("/store/**").hasAnyRole("ADMIN", "MANAGER")
+//                .antMatchers("/user/**").hasRole("ADMIN")
+//                .antMatchers("/test/admin").hasRole("ADMIN")
+//                .antMatchers("/test/**").authenticated()
                 .anyRequest().permitAll()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
