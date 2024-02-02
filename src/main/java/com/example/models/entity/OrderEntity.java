@@ -10,11 +10,11 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Data
-@Builder
 @Entity
-@Table(name = "orders")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "orders")
 public class OrderEntity {
 
     @Id

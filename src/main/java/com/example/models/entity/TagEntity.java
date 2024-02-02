@@ -1,9 +1,6 @@
 package com.example.models.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,11 +10,11 @@ import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Data
-@Builder
 @Entity
-@Table(name = "tags")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "tags")
 public class TagEntity {
 
     @Id

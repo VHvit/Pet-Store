@@ -1,0 +1,33 @@
+springdoc:
+  swagger-ui:
+    enabled: true
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+jwt:
+  secret: hvit
+  lifetime: 35m
+spring:
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    default_schema: pet_store
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres?search_path=pet_store
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate.default_schema: pet_store
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+classpath:/db/changelog/db:
+  changelog-master:
+    yaml:

@@ -1,13 +1,9 @@
 package com.example.models.entity;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -18,13 +14,13 @@ import java.util.UUID;
 
 
 @Data
-@Builder
 @Entity
-@Table(name = "pets")
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "pets")
 @Accessors (chain = true)
+@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class PetEntity {
 
     @Id
@@ -39,6 +35,7 @@ public class PetEntity {
     private String name;
 
     @Column(nullable = true, columnDefinition = "jsonb")
+    @Builder.Default
     @Type(type = "jsonb")
     private List<String> photoUrls = new ArrayList<>();
 

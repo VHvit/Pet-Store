@@ -1,85 +1,33 @@
 package com.example.service;
 
+import com.example.mapping.UserMapping;
 import com.example.models.dto.UserDto;
 import com.example.models.entity.RoleEntity;
 import com.example.models.entity.UserEntity;
 import com.example.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public Optional<UserEntity> findByUsername(String username) {
-        return userRepository.findByUsername(username);
-    }
-
-
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserEntity> userEntityOptional = findByUsername(username);
-
-        if (userEntityOptional.isPresent()) {
-            UserEntity userEntity = userEntityOptional.get();
-
-            return new org.springframework.security.core.userdetails.User(
-                    userEntity.getUsername(),
-                    userEntity.getPassword(),
-                    userEntity.getRole() != null ?
-                            Collections.singletonList(new SimpleGrantedAuthority(userEntity.getRole().getName())) :
-                            Collections.emptyList()
-            );
-        } else {
-            throw new UsernameNotFoundException(String.format("User with username '%s' not found", username));
-        }
-    }
+    private final UserMapping userMapping;
 
 
     public UserDto save(UserDto userDto) {
-        UserEntity userEntity = map(userDto);
-        return map(
+        UserEntity userEntity = userMapping.dtoToEntity(userDto);
+        return userMapping.entityToDto(
                 userRepository.save(userEntity)
         );
-    }
-
-    public UserEntity map(UserDto userDto) {
-        return UserEntity.builder()
-                .id(userDto.getId())
-                .username(userDto.getUsername())
-                .firstName(userDto.getFirstName())
-                .lastName(userDto.getLastName())
-                .email(userDto.getEmail())
-                .password(userDto.getPassword())
-                .phone(userDto.getPhone())
-                .userStatus(userDto.getUserStatus())
-                .build();
-    }
-
-    public UserDto map(UserEntity userEntity) {
-        return UserDto.builder()
-                .id(userEntity.getId())
-                .username(userEntity.getUsername())
-                .firstName(userEntity.getFirstName())
-                .lastName(userEntity.getLastName())
-                .email(userEntity.getEmail())
-                .password(userEntity.getPassword())
-                .phone(userEntity.getPhone())
-                .userStatus(userEntity.getUserStatus())
-                .build();
     }
 
     public List<UserEntity> createUsersArray(UserEntity[] userEntities) {
@@ -161,7 +109,7 @@ public class UserService implements UserDetailsService {
         user.setPassword(hashedPassword);
 
         RoleEntity role = new RoleEntity();
-        role.setId(UUID.fromString("7d2437ba-5a48-4997-9473-229c68bff871"));
+        role.setName("MANAGER");
         user.setRole(role);
 
         return userRepository.save(user);

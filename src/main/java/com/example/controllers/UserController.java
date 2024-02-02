@@ -1,26 +1,21 @@
 package com.example.controllers;
 
 import com.example.models.dto.UserDto;
-import lombok.RequiredArgsConstructor;
-
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.web.bind.annotation.*;
+import com.example.models.entity.UserEntity;
+import com.example.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import com.example.models.entity.UserEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
-import javax.validation.ValidationException;
-import org.springframework.http.HttpStatus;
-import com.example.models.ApiErrorResponse;
-import com.example.service.UserService;
-import org.webjars.NotFoundException;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -31,14 +26,6 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
-
-    public ResponseEntity<ApiErrorResponse> userHandleException(HttpStatus status, String message) {
-
-        ApiErrorResponse apiErrorResponse = new ApiErrorResponse()
-                .setCode(status.value())
-                .setMessage(message);
-        return ResponseEntity.status(status).body(apiErrorResponse);
-    }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +38,8 @@ public class UserController {
     @RolesAllowed("ROLE_ADMIN")
     public List<UserEntity> createUserArray(
             @Parameter(description = "Array of user objects")
-            @RequestBody UserEntity[] users) {
+            @RequestBody UserEntity[] users
+    ) {
         return userService.createUsersArray(users);
     }
 
@@ -65,7 +53,8 @@ public class UserController {
     @RolesAllowed("ROLE_ADMIN")
     public List<UserEntity> createUserList(
             @Parameter(description = "List of user objects")
-            @RequestBody List<UserEntity> users) {
+            @RequestBody List<UserEntity> users
+    ) {
         return userService.createUsersList(users);
     }
 
@@ -84,25 +73,10 @@ public class UserController {
     @RolesAllowed("ROLE_ADMIN")
     public ResponseEntity<?> getUser(
             @Parameter(description = "The name that needs to be fetched. Use user1 for testing.")
-            @PathVariable("username") String username) {
-        try {
-            Optional<UserEntity> user = userService.getUserByUsername(username);
-            return ResponseEntity.status(HttpStatus.OK).body(user);
-        } catch (ValidationException ex) {
-            return handleGetUserValidationException(ex);
-        } catch (NotFoundException ex) {
-            return handleGetUserNotFoundException(ex);
-        }
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiErrorResponse> handleGetUserValidationException(ValidationException ex) {
-        return userHandleException(HttpStatus.BAD_REQUEST, "Invalid username supplied");
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiErrorResponse> handleGetUserNotFoundException(NotFoundException ex) {
-        return userHandleException(HttpStatus.NOT_FOUND, "User not found");
+            @PathVariable("username") String username
+    ) {
+        Optional<UserEntity> user = userService.getUserByUsername(username);
+        return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,25 +96,10 @@ public class UserController {
             @Parameter(description = "Name that needs to be updated")
             @PathVariable("username") String username,
             @Parameter(description = "Updated user object")
-            @RequestBody UserEntity updatedUser) {
-        try {
-            UserEntity updatedUserInfo = userService.updateUser(username, updatedUser);
-            return ResponseEntity.status(HttpStatus.OK).body(updatedUserInfo);
-        } catch (ValidationException ex) {
-            return handleUpdateUserValidationException(ex);
-        } catch (NotFoundException ex) {
-            return handleUpdateUserNotFoundException(ex);
-        }
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiErrorResponse> handleUpdateUserValidationException(ValidationException ex) {
-        return userHandleException(HttpStatus.BAD_REQUEST, "Invalid username supplied");
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiErrorResponse> handleUpdateUserNotFoundException(NotFoundException ex) {
-        return userHandleException(HttpStatus.NOT_FOUND, "User not found");
+            @RequestBody UserEntity updatedUser
+    ) {
+        UserEntity updateUser = userService.updateUser(username, updatedUser);
+        return ResponseEntity.status(HttpStatus.OK).body(updateUser);
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,25 +117,10 @@ public class UserController {
     @RolesAllowed("ROLE_ADMIN")
     public ResponseEntity<?> deleteUser(
             @Parameter(description = "The name that needs to be deleted")
-            @PathVariable("username") String username) {
-        try {
-            Optional<UserEntity> deletedUser = userService.deleteUser(username);
-            return ResponseEntity.status(HttpStatus.OK).body(deletedUser);
-        } catch (ValidationException ex) {
-            return handleDeleteUserValidationException(ex);
-        } catch (NotFoundException ex) {
-            return handleDeleteUserNotFoundException(ex);
-        }
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiErrorResponse> handleDeleteUserValidationException(ValidationException ex) {
-        return userHandleException(HttpStatus.BAD_REQUEST, "Invalid username supplied");
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiErrorResponse> handleDeleteUserNotFoundException(NotFoundException ex) {
-        return userHandleException(HttpStatus.NOT_FOUND, "User not found");
+            @PathVariable("username") String username
+    ) {
+        Optional<UserEntity> deletedUser = userService.deleteUser(username);
+        return ResponseEntity.status(HttpStatus.OK).body(deletedUser);
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -194,18 +138,10 @@ public class UserController {
             @Parameter(description = "The user name for login")
             @RequestParam("username") String username,
             @Parameter(description = "The password for login in clear text")
-            @RequestParam("password") String password) {
-        try {
-            Optional<UserEntity> userEntity = userService.userLogin(username, password);
-            return ResponseEntity.status(HttpStatus.OK).body(userEntity);
-        } catch (ValidationException ex) {
-            return handleLogsUserValidationException(ex);
-        }
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiErrorResponse> handleLogsUserValidationException(ValidationException ex) {
-        return userHandleException(HttpStatus.BAD_REQUEST, "Invalid username supplied");
+            @RequestParam("password") String password
+    ) {
+        Optional<UserEntity> userEntity = userService.userLogin(username, password);
+        return ResponseEntity.status(HttpStatus.OK).body(userEntity);
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -233,7 +169,8 @@ public class UserController {
     @RolesAllowed("ROLE_ADMIN")
     public ResponseEntity<?> createUser(
             @Parameter(description = "Created user object")
-            @RequestBody UserEntity body) {
+            @RequestBody UserEntity body
+    ) {
         UserEntity createdUser = userService.createUser(body);
         return ResponseEntity.ok(createdUser);
     }

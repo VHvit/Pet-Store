@@ -1,5 +1,6 @@
 package com.example.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,23 +27,13 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/store")
+@RequiredArgsConstructor
 @Tag(name = "store", description = "Access to Petstore orders")
 public class StoreController {
 
     private final StoreService storeService;
 
-    @Autowired
-    public StoreController(StoreService storeService) {
-        this.storeService = storeService;
-    }
 
-    public ResponseEntity<ApiErrorResponse> storeHandleException(HttpStatus status, String message) {
-
-        ApiErrorResponse apiErrorResponse = new ApiErrorResponse()
-                .setCode(status.value())
-                .setMessage(message);
-        return ResponseEntity.status(status).body(apiErrorResponse);
-    }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,18 +48,10 @@ public class StoreController {
     @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public ResponseEntity<?> orderCreate(
             @Parameter(description = "Order object")
-            @RequestBody OrderEntity body) {
-        try {
-            OrderEntity createdOrder = storeService.createOrder(body);
-            return ResponseEntity.status(HttpStatus.OK).body(createdOrder);
-        } catch (ValidationException ex) {
-            return handleCreateOrderValidationException(ex);
-        }
-    }
-
-    @ExceptionHandler(ValidationException.class) // 400 create order
-    public ResponseEntity<ApiErrorResponse> handleCreateOrderValidationException(ValidationException ex) {
-        return storeHandleException(HttpStatus.BAD_REQUEST, "Invalid Order");
+            @RequestBody OrderEntity body
+    ) {
+        OrderEntity createdOrder = storeService.createOrder(body);
+        return ResponseEntity.status(HttpStatus.OK).body(createdOrder);
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,25 +71,10 @@ public class StoreController {
     @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public ResponseEntity<?> findOrderById(
             @Parameter(description = "ID of pet that needs to be fetched")
-            @PathVariable("orderId") UUID orderId) {
-        try {
-            Optional<OrderEntity> order = storeService.findOrderById(orderId);
-            return ResponseEntity.status(HttpStatus.OK).body(order);
-        } catch (ValidationException ex) {
-            return handleOrderValidationException(ex);
-        } catch (NotFoundException ex) {
-            return handleOrderNotFoundException(ex);
-        }
-    }
-
-    @ExceptionHandler(ValidationException.class) // 400 find order by ID
-    public ResponseEntity<ApiErrorResponse> handleOrderValidationException(ValidationException ex) {
-        return storeHandleException(HttpStatus.BAD_REQUEST, "Invalid ID supplied");
-    }
-
-    @ExceptionHandler(NotFoundException.class) // 404 find order by ID
-    public ResponseEntity<ApiErrorResponse> handleOrderNotFoundException(NotFoundException ex) {
-        return storeHandleException(HttpStatus.NOT_FOUND, "Order not found");
+            @PathVariable("orderId") UUID orderId
+    ) {
+        Optional<OrderEntity> order = storeService.findOrderById(orderId);
+        return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,25 +92,10 @@ public class StoreController {
     @RolesAllowed({"ROLE_ADMIN", "ROLE_MANAGER"})
     public ResponseEntity<?> deleteOrderById(
             @Parameter(description = "ID of the order that needs to be deleted")
-            @PathVariable("orderId") UUID orderId) {
-        try {
-            Optional<OrderEntity> deletedOrder = storeService.deleteOrderInStore(orderId);
-            return ResponseEntity.status(HttpStatus.OK).body(deletedOrder);
-        } catch (ValidationException ex) {
-            return handleDeleteValidationException(ex);
-        } catch (NotFoundException ex) {
-            return handleOrderDeleteNotFoundException(ex);
-        }
-    }
-
-    @ExceptionHandler(ValidationException.class) // 400 delete order by ID
-    public ResponseEntity<ApiErrorResponse> handleDeleteValidationException(ValidationException ex) {
-        return storeHandleException(HttpStatus.BAD_REQUEST, "Invalid ID supplied");
-    }
-
-    @ExceptionHandler(NotFoundException.class) // 404 delete order by ID
-    public ResponseEntity<ApiErrorResponse> handleOrderDeleteNotFoundException(NotFoundException ex) {
-        return storeHandleException(HttpStatus.NOT_FOUND, "Order not found");
+            @PathVariable("orderId") UUID orderId
+    ) {
+        Optional<OrderEntity> deletedOrder = storeService.deleteOrderInStore(orderId);
+        return ResponseEntity.status(HttpStatus.OK).body(deletedOrder);
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

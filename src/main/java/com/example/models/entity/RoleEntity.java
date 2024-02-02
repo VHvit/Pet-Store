@@ -7,14 +7,12 @@ import javax.persistence.*;
 import java.util.UUID;
 
 @Data
-@Builder
 @Entity
-@Table(name="roles")
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-
+@Table(name="roles")
 public class RoleEntity {
 
     @Id
@@ -25,3 +23,5 @@ public class RoleEntity {
     @Column(nullable = true)
     private String name;
 }
+
+

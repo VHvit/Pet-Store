@@ -1,5 +1,6 @@
 package com.example.models;
 
+import com.example.models.enums.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiErrorResponse {
-    private Integer code;
+    private ErrorCode code;
     private String message;
 }
 

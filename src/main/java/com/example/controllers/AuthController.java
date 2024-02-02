@@ -4,6 +4,7 @@ package com.example.controllers;
 import com.example.jwt.JwtUtils;
 import com.example.models.JwtRequest;
 import com.example.models.JwtResponse;
+import com.example.service.CustomUserDetailsService;
 import com.example.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/demo")
 @RequiredArgsConstructor
 public class AuthController {
-    private final UserService userService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
 
@@ -27,7 +28,7 @@ public class AuthController {
                 authRequest.getUsername(),
                 authRequest.getPassword()
                 ));
-        UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(authRequest.getUsername());
         String token = jwtUtils.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
     }

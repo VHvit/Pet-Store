@@ -1,23 +1,19 @@
 package com.example.models.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 @Data
-@Builder
 @Entity
-@Table(name = "users")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
+@Table(name = "users")
 public class UserEntity {
 
     @Id
@@ -48,5 +44,4 @@ public class UserEntity {
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private RoleEntity role;
-
 }

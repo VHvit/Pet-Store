@@ -1,9 +1,10 @@
 package com.example.service;
 
+import com.example.mapping.PetMapping;
+import com.example.models.exceptions.GenericNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.tomcat.util.codec.binary.Base64;
 
-import javax.persistence.EntityNotFoundException;
 
 import com.example.repository.CategoryRepository;
 import com.example.models.entity.CategoryEntity;
@@ -18,125 +19,84 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.example.models.enums.ErrorCode.CATEGORY_NOT_FOUND;
+import static com.example.models.enums.ErrorCode.PET_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class PetService {
 
     private final PetRepository petRepository;
     private final CategoryRepository categoryRepository;
-
+    private final PetMapping petMapping;
 
     public PetDto save(PetDto petDto) {
-        PetEntity petEntity = map(petDto);
-        return map(
+        PetEntity petEntity = petMapping.dtoToEntity(petDto);
+        return petMapping.entityToDto(
                 petRepository.save(petEntity)
         );
     }
 
-    public PetEntity map(PetDto petDto) {
-        return PetEntity.builder()
-                .id(petDto.getId())
-                .name(petDto.getName())
-                .photoUrls(petDto.getPhotoUrls())
-                .tags(petDto.getTags())
-                .status(petDto.getStatus())
-                .build();
-    }
-
-    public PetDto map(PetEntity petEntity) {
-        return PetDto.builder()
-                .id(petEntity.getId())
-                .name(petEntity.getName())
-                .photoUrls(petEntity.getPhotoUrls())
-                .tags(petEntity.getTags())
-                .status(petEntity.getStatus())
-                .build();
-    }
-
     public void uploadImage(UUID petId, String additionalMetadata, MultipartFile file) throws IOException {
-        Optional<PetEntity> optionalPetEntity = petRepository.findById(petId);
+        PetEntity petEntity = petRepository.findById(petId)
+                .orElseThrow(() -> new GenericNotFoundException(PET_NOT_FOUND, petId));
 
-        if (optionalPetEntity.isPresent()) {
-            PetEntity petEntity = optionalPetEntity.get();
+        byte[] fileBytes = file.getBytes();
+        String base64 = Base64.encodeBase64String(fileBytes);
 
-            String base64 = Base64.encodeBase64String(file.getBytes());
-            petEntity.getPhotoUrls().add("base64://" + base64);
+        List<String> photoUrls = petEntity.getPhotoUrls();
+        photoUrls.add("base64://" + base64);
 
-            petRepository.save(petEntity);
-        } else {
-            throw new EntityNotFoundException("Pet with id " + petId + " not found");
-        }
+        petRepository.save(petEntity);
     }
-
 
     public PetEntity addPet(PetEntity petEntity) {
-        if (petEntity.getId() == null) {
-            petEntity.setId(UUID.randomUUID());
-        }
+        petEntity.setId(UUID.randomUUID());
 
         if (petEntity.getCategory() != null && petEntity.getCategory().getId() != null) {
-            Optional<CategoryEntity> existingCategory = categoryRepository.findById(petEntity.getCategory().getId());
+            CategoryEntity existingCategory = categoryRepository.findById(petEntity.getCategory().getId())
+                    .orElseThrow(() -> new GenericNotFoundException(CATEGORY_NOT_FOUND, petEntity.getCategory().getId()));
 
-            if (existingCategory.isPresent()) {
-                petEntity.setCategory(existingCategory.get());
-            } else {
-                throw new EntityNotFoundException("Category with id " + petEntity.getCategory().getId() + " not found");
-            }
+            petEntity.setCategory(existingCategory);
         }
 
         return petRepository.save(petEntity);
     }
 
-
     public PetEntity updatePet(PetEntity updatedPet) {
-        if (updatedPet == null || updatedPet.getId() == null) {
-            throw new IllegalArgumentException("Incorrect pet data");
-        }
 
-        Optional<PetEntity> existingPetOptional = petRepository.findById(updatedPet.getId());
+        PetEntity existingPet = petRepository.findById(updatedPet.getId())
+                .orElseThrow(() -> new GenericNotFoundException(PET_NOT_FOUND, updatedPet.getId()));
 
-        if (existingPetOptional.isPresent()) {
-            PetEntity existingPet = existingPetOptional.get();
+        existingPet.setName(updatedPet.getName());
+        existingPet.setPhotoUrls(updatedPet.getPhotoUrls());
+        existingPet.setStatus(updatedPet.getStatus());
 
-            existingPet.setName(updatedPet.getName());
-            existingPet.setPhotoUrls(updatedPet.getPhotoUrls());
-            existingPet.setStatus(updatedPet.getStatus());
-
-            return petRepository.save(existingPet);
-        } else {
-            throw new EntityNotFoundException("Pet with id " + updatedPet.getId() + " not found");
-        }
+        return petRepository.save(existingPet);
     }
-
 
     public List<PetEntity> findPetsByStatus(List<String> status) {
         if (status == null || status.isEmpty()) {
             throw new IllegalArgumentException("Invalid status values");
         }
+
         return petRepository.findByStatusIn(status);
     }
 
     public Optional<PetEntity> findPetById(UUID petId) {
-        Optional<PetEntity> optionalPet = petRepository.findById(petId);
 
-        return optionalPet;
+        return petRepository.findById(petId);
     }
 
     public PetEntity updatePetInStore(UUID petId, String name, String status) {
-        Optional<PetEntity> optionalPet = petRepository.findById(petId);
+        PetEntity petEntity = petRepository.findById(petId)
+                .orElseThrow(() -> new GenericNotFoundException(PET_NOT_FOUND, petId));
 
-        if (optionalPet.isPresent()) {
-            PetEntity pet = optionalPet.get();
+        petEntity.setName(name);
+        petEntity.setStatus(status);
 
-            pet.setName(name);
-            pet.setStatus(status);
-
-            return petRepository.save(pet);
-        } else {
-            throw new EntityNotFoundException("Pet with id " + petId + " not found");
-        }
+        return petRepository.save(petEntity);
     }
-
 
     public Optional<PetEntity> deletePetInStore(UUID petId) {
         Optional<PetEntity> optionalPet = petRepository.findById(petId);
@@ -151,6 +111,5 @@ public class PetService {
             return Optional.empty();
         }
     }
-
 
 }
