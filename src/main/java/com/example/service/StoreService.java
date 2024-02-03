@@ -1,8 +1,6 @@
 package com.example.service;
 
 import com.example.mapping.StoreMapping;
-import com.example.models.dto.PetDto;
-import com.example.models.entity.PetEntity;
 import com.example.models.exceptions.GenericNotFoundException;
 import org.springframework.stereotype.Service;
 import com.example.repository.OrderRepository;
@@ -34,39 +32,29 @@ public class StoreService {
     }
 
     public OrderEntity createOrder(OrderEntity orderEntity) {
-        if (orderEntity.getPetId() != null && !petRepository.existsById(orderEntity.getPetId().getId())) {
+        if (orderEntity.getPetId() != null && !petRepository.existsById(orderEntity.getPetId().getId()))
             throw new GenericNotFoundException(ORDER_NOT_FOUND, orderEntity.getId());
 
-        }
-
-        if (orderEntity.getId() == null) {
+        if (orderEntity.getId() == null)
             orderEntity.setId(UUID.randomUUID());
-        }
 
-        if (orderEntity.getDate() == null) {
+        if (orderEntity.getDate() == null)
             orderEntity.setDate(OffsetDateTime.now());
-        }
 
         return storeRepository.save(orderEntity);
     }
 
-    public Optional<OrderEntity> findOrderById(UUID orderId) {
-        return storeRepository.findById(orderId);
+    public OrderEntity findOrderById(UUID orderId) {
+        return storeRepository.findById(orderId)
+                .orElseThrow(() -> new GenericNotFoundException(ORDER_NOT_FOUND, orderId));
     }
 
-    public Optional<OrderEntity> deleteOrderInStore(UUID orderId) {
-        Optional<OrderEntity> orderEntity = storeRepository.findById(orderId);
 
-        if (orderEntity.isPresent()) {
-            OrderEntity order = orderEntity.get();
-
+    public OrderEntity deleteOrderInStore(UUID orderId) {
+        return storeRepository.findById(orderId).map(order -> {
             storeRepository.delete(order);
-
-            return Optional.of(order);
-        } else {
-            return Optional.empty();
-        }
+            return order;
+        }).orElseThrow(() -> new GenericNotFoundException(ORDER_NOT_FOUND, orderId));
     }
-
 
 }

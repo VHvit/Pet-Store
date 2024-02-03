@@ -73,7 +73,7 @@ public class StoreController {
             @Parameter(description = "ID of pet that needs to be fetched")
             @PathVariable("orderId") UUID orderId
     ) {
-        Optional<OrderEntity> order = storeService.findOrderById(orderId);
+        OrderEntity order = storeService.findOrderById(orderId);
         return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 
@@ -94,7 +94,7 @@ public class StoreController {
             @Parameter(description = "ID of the order that needs to be deleted")
             @PathVariable("orderId") UUID orderId
     ) {
-        Optional<OrderEntity> deletedOrder = storeService.deleteOrderInStore(orderId);
+        OrderEntity deletedOrder = storeService.deleteOrderInStore(orderId);
         return ResponseEntity.status(HttpStatus.OK).body(deletedOrder);
     }
 

@@ -1,6 +1,7 @@
 package com.example.service;
 
 import com.example.mapping.PetMapping;
+import com.example.models.exceptions.GenericBadRequestException;
 import com.example.models.exceptions.GenericNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -19,8 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.example.models.enums.ErrorCode.CATEGORY_NOT_FOUND;
-import static com.example.models.enums.ErrorCode.PET_NOT_FOUND;
+import static com.example.models.enums.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -76,17 +76,17 @@ public class PetService {
     }
 
     public List<PetEntity> findPetsByStatus(List<String> status) {
-        if (status == null || status.isEmpty()) {
-            throw new IllegalArgumentException("Invalid status values");
-        }
+        if (status == null || status.isEmpty())
+            throw new GenericBadRequestException(STATUS_BAD_VALUE, "Invalid status values");
 
         return petRepository.findByStatusIn(status);
     }
 
-    public Optional<PetEntity> findPetById(UUID petId) {
-
-        return petRepository.findById(petId);
+    public PetEntity findPetById(UUID petId) {
+        return petRepository.findById(petId)
+                .orElseThrow(() -> new GenericNotFoundException(PET_NOT_FOUND, petId));
     }
+
 
     public PetEntity updatePetInStore(UUID petId, String name, String status) {
         PetEntity petEntity = petRepository.findById(petId)
@@ -98,18 +98,10 @@ public class PetService {
         return petRepository.save(petEntity);
     }
 
-    public Optional<PetEntity> deletePetInStore(UUID petId) {
-        Optional<PetEntity> optionalPet = petRepository.findById(petId);
-
-        if (optionalPet.isPresent()) {
-            PetEntity pet = optionalPet.get();
-
+    public PetEntity deletePetInStore(UUID petId) {
+        return petRepository.findById(petId).map(pet -> {
             petRepository.delete(pet);
-
-            return Optional.of(pet);
-        } else {
-            return Optional.empty();
-        }
+            return pet;
+        }).orElseThrow(() -> new GenericNotFoundException(PET_NOT_FOUND, petId));
     }
-
 }

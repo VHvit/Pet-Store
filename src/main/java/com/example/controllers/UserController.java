@@ -75,7 +75,7 @@ public class UserController {
             @Parameter(description = "The name that needs to be fetched. Use user1 for testing.")
             @PathVariable("username") String username
     ) {
-        Optional<UserEntity> user = userService.getUserByUsername(username);
+        UserEntity user = userService.getUserByUsername(username);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
@@ -119,7 +119,7 @@ public class UserController {
             @Parameter(description = "The name that needs to be deleted")
             @PathVariable("username") String username
     ) {
-        Optional<UserEntity> deletedUser = userService.deleteUser(username);
+        UserEntity deletedUser = userService.deleteUser(username);
         return ResponseEntity.status(HttpStatus.OK).body(deletedUser);
     }
 
@@ -140,7 +140,7 @@ public class UserController {
             @Parameter(description = "The password for login in clear text")
             @RequestParam("password") String password
     ) {
-        Optional<UserEntity> userEntity = userService.userLogin(username, password);
+        UserEntity userEntity = userService.userLogin(username, password);
         return ResponseEntity.status(HttpStatus.OK).body(userEntity);
     }
 

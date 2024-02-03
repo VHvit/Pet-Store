@@ -123,7 +123,7 @@ public class PetController {
             @Parameter(description = "ID of pet to return")
             @PathVariable("petId") UUID petId
     ) {
-        Optional<PetEntity> pet = petService.findPetById(petId);
+        PetEntity pet = petService.findPetById(petId);
         return ResponseEntity.status(HttpStatus.OK).body(pet);
     }
 
@@ -160,7 +160,7 @@ public class PetController {
             @RequestHeader("api_key") String api_key ,
             @Parameter(description = "Pet id to delete")
             @PathVariable("petId") UUID petId) {
-        Optional<PetEntity> pet = petService.deletePetInStore(petId);
+        PetEntity pet = petService.deletePetInStore(petId);
         return ResponseEntity.status(HttpStatus.OK).body(pet);
     }
 

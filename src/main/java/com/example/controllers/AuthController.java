@@ -1,18 +1,15 @@
 package com.example.controllers;
 
-
 import com.example.jwt.JwtUtils;
 import com.example.models.JwtRequest;
 import com.example.models.JwtResponse;
 import com.example.service.CustomUserDetailsService;
-import com.example.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequestMapping("/demo")

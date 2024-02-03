@@ -2,8 +2,11 @@ package com.example.service;
 
 import com.example.mapping.UserMapping;
 import com.example.models.dto.UserDto;
+import com.example.models.entity.OrderEntity;
 import com.example.models.entity.RoleEntity;
 import com.example.models.entity.UserEntity;
+import com.example.models.exceptions.GenericBadRequestException;
+import com.example.models.exceptions.GenericNotFoundException;
 import com.example.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.example.models.enums.ErrorCode.*;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -21,7 +26,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapping userMapping;
-
 
     public UserDto save(UserDto userDto) {
         UserEntity userEntity = userMapping.dtoToEntity(userDto);
@@ -48,54 +52,35 @@ public class UserService {
         return userRepository.saveAll(userEntities);
     }
 
-    public Optional<UserEntity> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public UserEntity getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new GenericNotFoundException(USER_NOT_FOUND, username));
     }
 
     public UserEntity updateUser(String username, UserEntity updatedUser) {
-        UserEntity existingUser = userRepository.findByUsername(username).orElse(null);
+        UserEntity existingUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new GenericNotFoundException(USER_NOT_FOUND, username));
 
-        if (existingUser != null) {
-            existingUser.setFirstName(updatedUser.getFirstName());
-            existingUser.setLastName(updatedUser.getLastName());
-            existingUser.setEmail(updatedUser.getEmail());
-            existingUser.setPhone(updatedUser.getPhone());
-            existingUser.setUserStatus(updatedUser.getUserStatus());
+        existingUser.setFirstName(updatedUser.getFirstName());
+        existingUser.setLastName(updatedUser.getLastName());
+        existingUser.setEmail(updatedUser.getEmail());
+        existingUser.setPhone(updatedUser.getPhone());
+        existingUser.setUserStatus(updatedUser.getUserStatus());
 
-            return userRepository.save(existingUser);
-        } else {
-            return userRepository.save(updatedUser);
-        }
+        return userRepository.save(existingUser);
     }
 
-    public Optional<UserEntity> deleteUser(String username) {
-        Optional<UserEntity> optionalUser = userRepository.findByUsername(username);
-
-        if (optionalUser.isPresent()) {
-            UserEntity user = optionalUser.get();
-
+    public UserEntity deleteUser(String username) {
+        return userRepository.findByUsername(username).map(user -> {
             userRepository.delete(user);
-
-            return Optional.of(user);
-        } else {
-            return Optional.empty();
-        }
+            return user;
+        }).orElseThrow(() -> new GenericNotFoundException(USER_NOT_FOUND, username));
     }
 
-    public Optional<UserEntity> userLogin(String username, String password) {
-        Optional<UserEntity> userOptional = userRepository.findByUsername(username);
-
-        if (userOptional.isPresent()) {
-            UserEntity user = userOptional.get();
-
-            if (password.equals(user.getPassword())) {
-                return Optional.of(user);
-            } else {
-                return Optional.empty();
-            }
-        } else {
-            return Optional.empty();
-        }
+    public UserEntity userLogin(String username, String password) {
+        return userRepository.findByUsername(username)
+                .filter(user -> password.equals(user.getPassword()))
+                .orElseThrow(() -> new GenericBadRequestException(USER_BAD_VALUE, username));
     }
 
     public UserEntity createUser(UserEntity user) {

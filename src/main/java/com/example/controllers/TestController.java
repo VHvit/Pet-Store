@@ -33,8 +33,6 @@ public class TestController {
         return "Admin data";
     }
 
-
-
     @GetMapping("/info")
     public String userData(Principal principal) {
         return principal.getName();

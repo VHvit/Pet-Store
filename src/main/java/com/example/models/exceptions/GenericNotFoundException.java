@@ -10,4 +10,8 @@ public class GenericNotFoundException extends GenericException {
         super(code, "Entity with id " + entityId + " not found");
     }
 
+    public GenericNotFoundException(ErrorCode code, String entityName) {
+        super(code, entityName + " not found");
+    }
+
 }
