@@ -6,5 +6,6 @@ public enum ErrorCode {
     STATUS_BAD_VALUE,
     USER_BAD_VALUE,
     ORDER_NOT_FOUND,
-    USER_NOT_FOUND
+    USER_NOT_FOUND,
+    USERNAME_NOT_FOUND
 }

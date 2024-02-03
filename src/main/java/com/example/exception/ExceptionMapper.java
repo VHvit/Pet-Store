@@ -20,12 +20,12 @@ public class ExceptionMapper {
         return ResponseEntity.status(status).body(apiErrorResponse);
     }
 
-    @ExceptionHandler(GenericException.class) //400
+    @ExceptionHandler(GenericException.class) //404
     public ResponseEntity<ApiErrorResponse> handleGenericException(GenericException ex) {
         return handleException(HttpStatus.NOT_FOUND, ex.getMessage(), ex.getCode());
     }
 
-    @ExceptionHandler(GenericBadRequestException.class) // 404
+    @ExceptionHandler(GenericBadRequestException.class) // 400
     public ResponseEntity<ApiErrorResponse> handleBadRequestException(GenericBadRequestException ex) {
         return handleException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex.getCode());
     }

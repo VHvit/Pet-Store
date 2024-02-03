@@ -17,7 +17,6 @@ import com.example.models.dto.PetDto;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static com.example.models.enums.ErrorCode.*;
@@ -59,12 +58,10 @@ public class PetService {
 
             petEntity.setCategory(existingCategory);
         }
-
         return petRepository.save(petEntity);
     }
 
     public PetEntity updatePet(PetEntity updatedPet) {
-
         PetEntity existingPet = petRepository.findById(updatedPet.getId())
                 .orElseThrow(() -> new GenericNotFoundException(PET_NOT_FOUND, updatedPet.getId()));
 
@@ -76,9 +73,9 @@ public class PetService {
     }
 
     public List<PetEntity> findPetsByStatus(List<String> status) {
-        if (status == null || status.isEmpty())
+        if (status == null || status.isEmpty()) {
             throw new GenericBadRequestException(STATUS_BAD_VALUE, "Invalid status values");
-
+        }
         return petRepository.findByStatusIn(status);
     }
 

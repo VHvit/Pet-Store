@@ -26,21 +26,19 @@ public class StoreService {
 
     public OrderDto save(OrderDto storeDto) {
         OrderEntity storeEntity = storeMapping.dtoToEntity(storeDto);
-        return storeMapping.entityToDto(
-                storeRepository.save(storeEntity)
-        );
+        return storeMapping.entityToDto(storeRepository.save(storeEntity));
     }
 
     public OrderEntity createOrder(OrderEntity orderEntity) {
-        if (orderEntity.getPetId() != null && !petRepository.existsById(orderEntity.getPetId().getId()))
+        if (orderEntity.getPetId() != null && !petRepository.existsById(orderEntity.getPetId().getId())) {
             throw new GenericNotFoundException(ORDER_NOT_FOUND, orderEntity.getId());
-
-        if (orderEntity.getId() == null)
+        }
+        if (orderEntity.getId() == null) {
             orderEntity.setId(UUID.randomUUID());
-
-        if (orderEntity.getDate() == null)
+        }
+        if (orderEntity.getDate() == null) {
             orderEntity.setDate(OffsetDateTime.now());
-
+        }
         return storeRepository.save(orderEntity);
     }
 

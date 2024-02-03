@@ -86,10 +86,6 @@ public class UserService {
     public UserEntity createUser(UserEntity user) {
         Optional<UserEntity> existingUser = userRepository.findByUsername(user.getUsername());
 
-        if (existingUser.isPresent()) {
-            return null;
-        }
-
         String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
 

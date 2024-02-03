@@ -1,17 +1,19 @@
 package com.example.service;
 
 import com.example.models.entity.UserEntity;
+import com.example.models.exceptions.GenericNotFoundException;
 import com.example.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.Optional;
+
+import static com.example.models.enums.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,21 +27,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserEntity> userEntityOptional = findByUsername(username);
+    public UserDetails loadUserByUsername(String username) {
+        UserEntity userEntityOptional = findByUsername(username)
+                .orElseThrow(() -> new GenericNotFoundException(USERNAME_NOT_FOUND, username));
 
-        if (userEntityOptional.isPresent()) {
-            UserEntity userEntity = userEntityOptional.get();
-
-            return new org.springframework.security.core.userdetails.User(
-                    userEntity.getUsername(),
-                    userEntity.getPassword(),
-                    userEntity.getRole() != null ?
-                            Collections.singletonList(new SimpleGrantedAuthority(userEntity.getRole().getName())) :
-                            Collections.emptyList()
-            );
-        } else {
-            throw new UsernameNotFoundException(String.format("User with username '%s' not found", username));
-        }
+        return new org.springframework.security.core.userdetails.User(
+                userEntityOptional.getUsername(),
+                userEntityOptional.getPassword(),
+                userEntityOptional.getRole() != null ?
+                        Collections.singletonList(new SimpleGrantedAuthority(userEntityOptional.getRole().getName())) :
+                        Collections.emptyList()
+        );
     }
+
 }
